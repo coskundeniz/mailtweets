@@ -159,10 +159,10 @@ def usage():
     
     Possible usage scenarios
     ------------------------
-    * python get_tweets.py <username> 
-    * python get_tweets.py <username> <number of tweets> 
-    * python get_tweets.py <-f> <filename>
-    * python get_tweets.py <-f> <filename> <number of tweets>
+    * python mailtweets.py <username> 
+    * python mailtweets.py <username> <number of tweets> 
+    * python mailtweets.py <-f> <filename>
+    * python mailtweets.py <-f> <filename> <number of tweets>
     """
 
 

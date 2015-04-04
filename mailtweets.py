@@ -131,6 +131,9 @@ def construct_html_message(tweets):
     :returns: tweets formatted as html
     """
 
+    color_values = ["darkslategrey", "#FF3300", "#0000CC", "#009933", "#6600CC",
+                    "#850C0C", "#3C3C0C", "#CC6600", "#666633", "#003300"]
+
     header_text = u"""<!DOCTYPE html>\n
     <html>
     <head>
@@ -141,14 +144,17 @@ def construct_html_message(tweets):
 
     body_text = "<body style='background-color: #E6E6E6;'>"
     
+    index = 0
     for user, user_tweets in tweets.iteritems():
-        body_text += u"<h2 style='color: darkslategrey; font-weight: normal; \
-                        font-size: 2.2em;'>Tweets from %s</h2>" % user
+        body_text += u"<h2 style='color: %s; font-weight: normal; \
+                        font-size: 2.2em;'>Tweets from %s</h2>" %(color_values[index], user)
 
         for tweet in user_tweets:
             body_text += u"\n<p style='color: #303030; font-size: 1.2em;'>%s</p>" % tweet
             body_text += "<hr>"
         
+        index += 1
+
     body_text += "\n</body>\n</html>"
 
     return header_text + body_text

@@ -145,11 +145,11 @@ def construct_html_message(tweets):
     body_text = "<body style='background-color: #E6E6E6;'>"
     
     index = 0
-    for user, user_tweets in tweets.iteritems():
+    for user_tweet in sorted(tweets.items()):
         body_text += u"<h2 style='color: %s; font-weight: normal; \
-                        font-size: 2.2em;'>Tweets from %s</h2>" %(color_values[index], user)
+                        font-size: 2.2em;'>Tweets from %s</h2>" %(color_values[index], user_tweet[0])
 
-        for tweet in user_tweets:
+        for tweet in user_tweet[1]:
             body_text += u"\n<p style='color: #303030; font-size: 1.2em;'>%s</p>" % tweet
             body_text += "<hr>"
         

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 import tweepy
 import smtplib
@@ -8,10 +9,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
-access_token = "<access_token>"
-access_token_secret = "<access_token_secret>"
-consumer_key = "<consumer_key>"
-consumer_secret = "<consumer_secret>"
+access_token = os.environ['TWITTER_ACCESS_TOKEN']
+access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
+consumer_key = os.environ['TWITTER_CONSUMER_KEY']
+consumer_secret = os.environ['TWITTER_CONSUMER_SECRET']
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
@@ -32,14 +33,14 @@ def get_last_n_tweets_of_user(username, number_of_tweets=10):
 
     user = api.get_user(username).name
     print "Getting tweets of %s" % user
- 
+
     if number_of_tweets > 20:
         print "Max number of tweets allowed is 20"
         print "Getting last 20 tweets"
-        number_of_tweets = 20 
+        number_of_tweets = 20
 
     user_tweets = api.user_timeline(username, count=number_of_tweets)
-    
+
     tweets = [tweet.text for tweet in user_tweets]
 
     return {user: tweets}
@@ -99,9 +100,9 @@ def mail_tweets(tweets, mail_address):
     """
 
     user_from = "<sender mail address>"
-    pwd = "<password>"
+    pwd = os.environ['GMAIL_PASSWORD']
     user_to = mail_address
-    
+
     smtpserver = smtplib.SMTP("smtp.gmail.com", 587)
     smtpserver.ehlo()
     smtpserver.starttls()
@@ -109,7 +110,7 @@ def mail_tweets(tweets, mail_address):
     smtpserver.login(user_from, pwd)
 
     msg = MIMEMultipart("alternative")
-    msg.set_charset("utf-8") 
+    msg.set_charset("utf-8")
     msg["From"] = user_from
     msg["To"] = user_to
     msg["Subject"] = u'Recent Tweets'
@@ -143,7 +144,7 @@ def construct_html_message(tweets):
     """
 
     body_text = "<body style='background-color: #E6E6E6;'>"
-    
+
     index = 0
     for user_tweet in sorted(tweets.items()):
         body_text += u"<h2 style='color: %s; font-weight: normal; \
@@ -152,7 +153,7 @@ def construct_html_message(tweets):
         for tweet in user_tweet[1]:
             body_text += u"\n<p style='color: #303030; font-size: 1.2em;'>%s</p>" % tweet
             body_text += "<hr>"
-        
+
         index += 1
 
     body_text += "\n</body>\n</html>"
@@ -161,12 +162,12 @@ def construct_html_message(tweets):
 
 
 def usage():
-    return """Please give correct parameters  
-    
+    return """Please give correct parameters
+
     Possible usage scenarios
     ------------------------
-    * python mailtweets.py <username> 
-    * python mailtweets.py <username> <number of tweets> 
+    * python mailtweets.py <username>
+    * python mailtweets.py <username> <number of tweets>
     * python mailtweets.py <-f> <filename>
     * python mailtweets.py <-f> <filename> <number of tweets>
     """
@@ -181,7 +182,7 @@ if __name__ == '__main__':
         tweets.update(get_last_n_tweets_of_user(sys.argv[1]))
 
     elif(len(sys.argv) == 3 and sys.argv[1] != "-f"):
-        # get tweets of one user with given value 
+        # get tweets of one user with given value
         tweets.update(get_last_n_tweets_of_user(sys.argv[1], int(sys.argv[2])))
 
     elif(len(sys.argv) == 3 and sys.argv[1] == "-f"):
@@ -194,8 +195,7 @@ if __name__ == '__main__':
 
     else:
         print usage()
-    
+
     message = construct_html_message(tweets)
 
     mail_tweets(message, "<receiver mail address>")
-

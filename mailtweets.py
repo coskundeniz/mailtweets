@@ -5,6 +5,7 @@ import os
 import sys
 import tweepy
 import smtplib
+from argparse import ArgumentParser
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -161,40 +162,34 @@ def construct_html_message(tweets):
     return header_text + body_text
 
 
-def usage():
-    return """Please give correct parameters
-
-    Possible usage scenarios
-    ------------------------
-    * python mailtweets.py <username>
-    * python mailtweets.py <username> <number of tweets>
-    * python mailtweets.py <-f> <filename>
-    * python mailtweets.py <-f> <filename> <number of tweets>
-    """
-
-
 if __name__ == '__main__':
+
+    arg_parser = ArgumentParser()
+    arg_parser.add_argument("-u", "--username", help="Twitter username of a user")
+    arg_parser.add_argument("-c", "--count", default=10, type=int,
+                            help="Number of tweets to query")
+    arg_parser.add_argument("-f", "--filename", default="usernames.txt",
+                            help="Name of file that contains usernames")
+
+    args = arg_parser.parse_args()
 
     tweets = {}
 
-    if(len(sys.argv) == 2):
+    if args.username:
         # get tweets of one user with default n value that is 10
-        tweets.update(get_last_n_tweets_of_user(sys.argv[1]))
+        tweets.update(get_last_n_tweets_of_user(args.username))
 
-    elif(len(sys.argv) == 3 and sys.argv[1] != "-f"):
+    elif args.username and args.count:
         # get tweets of one user with given value
-        tweets.update(get_last_n_tweets_of_user(sys.argv[1], int(sys.argv[2])))
+        tweets.update(get_last_n_tweets_of_user(args.username, args.count))
 
-    elif(len(sys.argv) == 3 and sys.argv[1] == "-f"):
+    elif args.filename and not args.count:
         # get tweets of users given in file with default max last tweet value
-        tweets.update(get_all_tweets(sys.argv[2]))
+        tweets.update(get_all_tweets(args.filename))
 
-    elif(len(sys.argv) == 4 and sys.argv[1] == "-f"):
+    elif args.filename and args.count:
         # get tweets of users given in file with given value
-        tweets.update(get_all_tweets(sys.argv[2], int(sys.argv[3])))
-
-    else:
-        print usage()
+        tweets.update(get_all_tweets(args.filename, args.count))
 
     message = construct_html_message(tweets)
 

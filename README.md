@@ -12,12 +12,11 @@ Requirements
 ------------
 
 * Twitter developer account
-* tweepy module (pip install tweepy)
+* tweepy module `pip install tweepy`
 
 Usage
 -----
-* python mailtweets.py username 
-* python mailtweets.py username number-of-tweets 
-* python mailtweets.py -f filename
-* python mailtweets.py -f filename number-of-tweets
-
+* python mailtweets.py [-u username]
+* python mailtweets.py [-u username] [-c number_of _tweets]
+* python mailtweets.py [-f filename]
+* python mailtweets.py [-f filename] [-c number_of_tweets]

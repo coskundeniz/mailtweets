@@ -175,7 +175,7 @@ if __name__ == '__main__':
 
     tweets = {}
 
-    if args.username:
+    if args.username and not args.count:
         # get tweets of one user with default n value that is 10
         tweets.update(get_last_n_tweets_of_user(args.username))
 
@@ -183,7 +183,7 @@ if __name__ == '__main__':
         # get tweets of one user with given value
         tweets.update(get_last_n_tweets_of_user(args.username, args.count))
 
-    elif args.filename and not args.count:
+    if args.filename and not args.count:
         # get tweets of users given in file with default max last tweet value
         tweets.update(get_all_tweets(args.filename))
 

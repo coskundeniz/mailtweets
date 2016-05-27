@@ -20,3 +20,4 @@ Usage
 * python mailtweets.py [-u username] [-c number_of _tweets]
 * python mailtweets.py [-f filename]
 * python mailtweets.py [-f filename] [-c number_of_tweets]
+* python mailtweets.py [-f filename] [-c number_of_tweets] [-e username(s)_to_exclude]

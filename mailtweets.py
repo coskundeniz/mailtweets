@@ -47,19 +47,26 @@ def get_last_n_tweets_of_user(username, number_of_tweets=10):
     return {user: tweets}
 
 
-def get_all_tweets(filename, tweet_count=10):
+def get_all_tweets(filename, tweet_count=10, excluded_users=""):
     """Return all tweets belong to users in given file
 
     :type filename: string
     :param filename: name of file that contains usernames
     :type tweet_count: integer
     :param tweet_count: number of tweets requested per user (max=20)
+    :type excluded_users: string
+    :param tweet_count: list of users to exclude
     :rtype: dictionary
     :returns: a dictionary that contains username and list of tweets pairs
     """
 
     tweets = {}
     usernames = get_usernames_from_file(filename)
+
+    if excluded_users:
+        for username in excluded_users.split():
+            if username in usernames:
+                usernames.remove(username)
 
     for user in usernames:
         tweets.update(get_last_n_tweets_of_user(user, number_of_tweets=tweet_count))
@@ -170,6 +177,7 @@ if __name__ == '__main__':
                             help="Number of tweets to query")
     arg_parser.add_argument("-f", "--filename", default="usernames.txt",
                             help="Name of file that contains usernames")
+    arg_parser.add_argument("-e", "--exclude", help="User(s) to exclude")
 
     args = arg_parser.parse_args()
 
@@ -185,11 +193,17 @@ if __name__ == '__main__':
 
     if args.filename and not args.count:
         # get tweets of users given in file with default max last tweet value
-        tweets.update(get_all_tweets(args.filename))
+        if args.exclude:
+            tweets.update(get_all_tweets(args.filename, args.exclude))
+        else:
+            tweets.update(get_all_tweets(args.filename))
 
     elif args.filename and args.count:
         # get tweets of users given in file with given value
-        tweets.update(get_all_tweets(args.filename, args.count))
+        if args.exclude:
+            tweets.update(get_all_tweets(args.filename, args.count, args.exclude))
+        else:
+            tweets.update(get_all_tweets(args.filename, args.count))
 
     message = construct_html_message(tweets)
 

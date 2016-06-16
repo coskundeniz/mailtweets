@@ -32,6 +32,7 @@ def get_last_n_tweets_of_user(username, number_of_tweets=10):
     :returns: last n tweets of given user
     """
 
+    tweets = []
     user = api.get_user(username).name
     print "Getting tweets of %s" % user
 
@@ -42,9 +43,34 @@ def get_last_n_tweets_of_user(username, number_of_tweets=10):
 
     user_tweets = api.user_timeline(username, count=number_of_tweets)
 
-    tweets = [tweet.text for tweet in user_tweets]
+    for tweet in user_tweets:
+        if "https" in tweet.text:
+            tweets.append(make_links_clickable(tweet))
+        else:
+            tweets.append(tweet.text)
 
     return {user: tweets}
+
+
+def make_links_clickable(tweet):
+    """Make links inside tweets clickable
+
+    :type tweet: object
+    :param tweet: a tweet of user
+    :rtype: string
+    :returns: modified tweet text that contains clickable links
+    """
+
+    # split tweet text
+    tweet_splitted = tweet.text.split()
+
+    # replace link text with clickable html link element
+    for text_part in tweet_splitted:
+        if text_part.startswith("https"):
+            link_location = tweet_splitted.index(text_part)
+            tweet_splitted[link_location] = "<a href='%s' style='color: #404040'>%s<a>" % (text_part, text_part)
+
+    return ' '.join(tweet_splitted)
 
 
 def get_all_tweets(filename, tweet_count=10, excluded_users=""):
@@ -208,3 +234,4 @@ if __name__ == '__main__':
     message = construct_html_message(tweets)
 
     mail_tweets(message, "<receiver mail address>")
+

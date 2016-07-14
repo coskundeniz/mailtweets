@@ -217,7 +217,7 @@ if __name__ == '__main__':
         # get tweets of one user with given value
         tweets.update(get_last_n_tweets_of_user(args.username, args.count))
 
-    if args.filename and not args.count:
+    elif args.filename and not args.count:
         # get tweets of users given in file with default max last tweet value
         if args.exclude:
             tweets.update(get_all_tweets(args.filename, args.exclude))

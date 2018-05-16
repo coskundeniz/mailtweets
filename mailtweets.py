@@ -5,10 +5,14 @@ import os
 import sys
 import tweepy
 import smtplib
+import getpass
+import urllib3
 from argparse import ArgumentParser
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+
+urllib3.disable_warnings()
 
 access_token = os.environ['TWITTER_ACCESS_TOKEN']
 access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
@@ -134,7 +138,7 @@ def mail_tweets(tweets, mail_address):
     """
 
     user_from = "<sender mail address>"
-    pwd = os.environ['GMAIL_PASSWORD']
+    pwd = getpass.getpass("Enter mail password: ")
     user_to = mail_address
 
     smtpserver = smtplib.SMTP("smtp.gmail.com", 587)

@@ -3,14 +3,13 @@
 
 import os
 import sys
-import tweepy
 import smtplib
 import getpass
 import urllib3
+import tweepy
 from argparse import ArgumentParser
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
 
 urllib3.disable_warnings()
 
@@ -23,7 +22,6 @@ auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 
 api = tweepy.API(auth)
-
 
 def get_last_n_tweets_of_user(username, number_of_tweets=10):
     """Return last n tweets of user as a dictionary
@@ -85,7 +83,7 @@ def get_all_tweets(filename, tweet_count=10, excluded_users=""):
     :type tweet_count: integer
     :param tweet_count: number of tweets requested per user (max=20)
     :type excluded_users: string
-    :param tweet_count: list of users to exclude
+    :param excluded_users: list of users to exclude separated by spaces
     :rtype: dictionary
     :returns: a dictionary that contains username and list of tweets pairs
     """
@@ -208,8 +206,33 @@ if __name__ == '__main__':
     arg_parser.add_argument("-f", "--filename", default="usernames.txt",
                             help="Name of file that contains usernames")
     arg_parser.add_argument("-e", "--exclude", help="User(s) to exclude")
+    arg_parser.add_argument("-tt", "--trendtopics", action='store_true', help="List trend topics for Turkey")
 
     args = arg_parser.parse_args()
+
+    if args.trendtopics:
+
+        id_for_TR = 23424969
+        trend_topics = api.trends_place(id_for_TR)
+
+        print '{:40s} {}{:40s} {}'.format("Trend Topics", "Tweet Count\n", "------------", "-----------\n")
+
+        for trend_topic in sorted(trend_topics[0]["trends"], key=lambda topic: topic["tweet_volume"], reverse=True)[:10]:
+            try:
+                tweet_count = int(trend_topic["tweet_volume"])
+            except TypeError:
+                tweet_count = 0
+
+            tt_length = len(trend_topic["name"])
+            tt_unicode_length = len(trend_topic["name"].encode("utf-8"))
+
+            width = 40
+            if tt_length != tt_unicode_length:
+                width += tt_unicode_length - tt_length
+
+            print '{:{width}s} {:11d}'.format(trend_topic["name"].encode("utf-8"), tweet_count, width=width)
+
+        print
 
     tweets = {}
 
@@ -238,4 +261,5 @@ if __name__ == '__main__':
     message = construct_html_message(tweets)
 
     mail_tweets(message, "<receiver mail address>")
+
 

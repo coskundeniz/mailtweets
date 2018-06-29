@@ -12,12 +12,21 @@ Requirements
 ------------
 
 * Twitter developer account
-* tweepy module `pip install tweepy`
+* tweepy module
+    * `pip install tweepy`
 
 Usage
 -----
-* python mailtweets.py [-u username]
-* python mailtweets.py [-u username] [-c number_of _tweets]
-* python mailtweets.py [-f filename]
-* python mailtweets.py [-f filename] [-c number_of_tweets]
-* python mailtweets.py [-f filename] [-c number_of_tweets] [-e username(s)_to_exclude]
+
+* Get tweets of one user with default tweet count per user which is 10
+    * `python mailtweets.py -u username`
+* Get tweets of one user with given tweet count
+    * `python mailtweets.py -u username -c number_of_tweets_per_user`
+* Get tweets of users given in file with default tweet count
+    * `python mailtweets.py -f filename`
+* Get tweets of users given in file with given value
+    * `python mailtweets.py -f filename -c number_of_tweets_per_user`
+* Get tweets of users given in file by excluding specified usernames
+    * `python mailtweets.py -f filename -e "username(s)_to_exclude_separated_by_spaces"`
+* List top 10 trend topics for Turkey
+    * `python mailtweets.py -tt`

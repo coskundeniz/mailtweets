@@ -23,6 +23,9 @@ auth.set_access_token(access_token, access_token_secret)
 
 api = tweepy.API(auth)
 
+# TODO: search for last tweet time in tweeter api, and
+# if it is older than one day, print no recent tweet for this user
+
 def get_last_n_tweets_of_user(username, number_of_tweets=10):
     """Return last n tweets of user as a dictionary
 
@@ -139,11 +142,16 @@ def mail_tweets(tweets, mail_address):
     pwd = getpass.getpass("Enter mail password: ")
     user_to = mail_address
 
-    smtpserver = smtplib.SMTP("smtp.gmail.com", 587)
-    smtpserver.ehlo()
-    smtpserver.starttls()
-    smtpserver.ehlo()
-    smtpserver.login(user_from, pwd)
+    try:
+        smtpserver = smtplib.SMTP("smtp.gmail.com", 587)
+        smtpserver.ehlo()
+        smtpserver.starttls()
+        smtpserver.ehlo()
+        smtpserver.login(user_from, pwd)
+
+    except smtplib.SMTPAuthenticationError:
+        print "Password was incorrect! Please check it.\n"
+        sys.exit(1)
 
     msg = MIMEMultipart("alternative")
     msg.set_charset("utf-8")

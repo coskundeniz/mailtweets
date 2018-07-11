@@ -6,10 +6,16 @@ import sys
 import smtplib
 import getpass
 import urllib3
-import tweepy
+from datetime import datetime, timedelta
 from argparse import ArgumentParser
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+try:
+    import tweepy
+except ImportError:
+    print "tweepy module is required. Please run 'pip install -r requirements.txt'"
+    sys.exit(1)
 
 urllib3.disable_warnings()
 
@@ -23,11 +29,10 @@ auth.set_access_token(access_token, access_token_secret)
 
 api = tweepy.API(auth)
 
-# TODO: search for last tweet time in tweeter api, and
-# if it is older than one day, print no recent tweet for this user
 
 def get_last_n_tweets_of_user(username, number_of_tweets=10):
-    """Return last n tweets of user as a dictionary
+    """Return last n tweets of user as a dictionary. If latest tweet of user
+    is older than a day, no tweet will be returned for this user.
 
     :type username: string
     :param username: username
@@ -47,6 +52,12 @@ def get_last_n_tweets_of_user(username, number_of_tweets=10):
         number_of_tweets = 20
 
     user_tweets = api.user_timeline(username, count=number_of_tweets)
+
+    last_tweet_time = user_tweets[0].created_at
+    yesterday = datetime.now() - timedelta(hours=24)
+
+    if last_tweet_time < yesterday:
+        return {user: []}
 
     for tweet in user_tweets:
         if "https" in tweet.text:
@@ -191,8 +202,14 @@ def construct_html_message(tweets):
 
     index = 0
     for user_tweet in sorted(tweets.items()):
+
         body_text += u"<h2 style='color: %s; font-weight: normal; \
                         font-size: 2.2em;'>Tweets from %s</h2>" %(color_values[index], user_tweet[0])
+
+        if not len(user_tweet[1]):
+            body_text += u"\n<p style='color: #303030; font-size: 1.2em;'>No tweets for this user in last day.</p>"
+            index += 1
+            continue
 
         for tweet in user_tweet[1]:
             body_text += u"\n<p style='color: #303030; font-size: 1.2em;'>%s</p>" % tweet

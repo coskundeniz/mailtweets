@@ -12,8 +12,7 @@ Requirements
 ------------
 
 * Twitter developer account
-* tweepy module
-    * `pip install tweepy`
+* `pip install -r requirements.txt`
 
 Usage
 -----

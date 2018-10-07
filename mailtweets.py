@@ -7,6 +7,10 @@ import os
 import smtplib
 import sys
 
+if sys.version_info.major < 3:
+    print("Use python3 to run the script!")
+    sys.exit(1)
+
 try:
     import tweepy
     import urllib3

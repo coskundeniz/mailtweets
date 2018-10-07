@@ -1,31 +1,28 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-import os
-import sys
-import smtplib
-import getpass
-import urllib3
-from datetime import datetime, timedelta
 from argparse import ArgumentParser
+from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import getpass
+import os
+import smtplib
+import sys
 
 try:
     import tweepy
+    import urllib3
 except ImportError:
-    print "tweepy module is required. Please run 'pip install -r requirements.txt'"
+    print("Please run 'pip install -r requirements.txt'")
     sys.exit(1)
 
 urllib3.disable_warnings()
 
-access_token = os.environ['TWITTER_ACCESS_TOKEN']
-access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
-consumer_key = os.environ['TWITTER_CONSUMER_KEY']
-consumer_secret = os.environ['TWITTER_CONSUMER_SECRET']
+ACCESS_TOKEN = os.environ['TWITTER_ACCESS_TOKEN']
+ACCESS_TOKEN_SECRET = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
+CONSUMER_KEY = os.environ['TWITTER_CONSUMER_KEY']
+CONSUMER_SECRET = os.environ['TWITTER_CONSUMER_SECRET']
 
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
+auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
 api = tweepy.API(auth)
 
@@ -44,11 +41,11 @@ def get_last_n_tweets_of_user(username, number_of_tweets=10):
 
     tweets = []
     user = api.get_user(username).name
-    print "Getting tweets of %s" % user
+    print("Getting tweets of %s" % user)
 
     if number_of_tweets > 20:
-        print "Max number of tweets allowed is 20"
-        print "Getting last 20 tweets"
+        print("Max number of tweets allowed is 20")
+        print("Getting last 20 tweets")
         number_of_tweets = 20
 
     user_tweets = api.user_timeline(username, count=number_of_tweets)
@@ -129,12 +126,12 @@ def get_usernames_from_file(filename):
         usernames = users_file.read().splitlines()
 
     if not usernames:
-        print "No username found in file! Exiting program..."
+        print("No username found in file! Exiting program...")
         sys.exit(1)
 
     if(len(usernames) > 10):
-        print "Max username count supported is 10"
-        print "Getting tweets of first 10 user"
+        print("Max username count supported is 10")
+        print("Getting tweets of first 10 user")
         return usernames[:10]
 
     return usernames
@@ -161,21 +158,21 @@ def mail_tweets(tweets, mail_address):
         smtpserver.login(user_from, pwd)
 
     except smtplib.SMTPAuthenticationError:
-        print "Password was incorrect! Please check it.\n"
+        print("Password was incorrect! Please check it.\n")
         sys.exit(1)
 
     msg = MIMEMultipart("alternative")
     msg.set_charset("utf-8")
     msg["From"] = user_from
     msg["To"] = user_to
-    msg["Subject"] = u'Recent Tweets'
+    msg["Subject"] = 'Recent Tweets'
     message_body = MIMEText(tweets, "html", "utf-8")
     msg.attach(message_body)
 
     smtpserver.sendmail(user_from, user_to, msg.as_string())
     smtpserver.close()
 
-    print "Tweets were sent to given mail address"
+    print("Tweets were sent to given mail address")
 
 
 def construct_html_message(tweets):
@@ -190,7 +187,7 @@ def construct_html_message(tweets):
     color_values = ["darkslategrey", "#FF3300", "#0000CC", "#009933", "#6600CC",
                     "#850C0C", "#3C3C0C", "#CC6600", "#666633", "#003300"]
 
-    header_text = u"""<!DOCTYPE html>\n
+    header_text = """<!DOCTYPE html>\n
     <html>
     <head>
         <meta content="text/html; charset=UTF-8" http-equiv="content-type">
@@ -203,16 +200,16 @@ def construct_html_message(tweets):
     index = 0
     for user_tweet in sorted(tweets.items()):
 
-        body_text += u"<h2 style='color: %s; font-weight: normal; \
+        body_text += "<h2 style='color: %s; font-weight: normal; \
                         font-size: 2.2em;'>Tweets from %s</h2>" %(color_values[index], user_tweet[0])
 
         if not len(user_tweet[1]):
-            body_text += u"\n<p style='color: #303030; font-size: 1.2em;'>No tweets for this user in last day.</p>"
+            body_text += "\n<p style='color: #303030; font-size: 1.2em;'>No tweets for this user in last day.</p>"
             index += 1
             continue
 
         for tweet in user_tweet[1]:
-            body_text += u"\n<p style='color: #303030; font-size: 1.2em;'>%s</p>" % tweet
+            body_text += "\n<p style='color: #303030; font-size: 1.2em;'>%s</p>" % tweet
             body_text += "<hr>"
 
         index += 1
@@ -240,24 +237,26 @@ if __name__ == '__main__':
         id_for_TR = 23424969
         trend_topics = api.trends_place(id_for_TR)
 
-        print '{:40s} {}{:40s} {}'.format("Trend Topics", "Tweet Count\n", "------------", "-----------\n")
+        print('{:40s} {}{:40s} {}'.format("Trend Topics", "Tweet Count\n", "------------", "-----------\n"))
 
-        for trend_topic in sorted(trend_topics[0]["trends"], key=lambda topic: topic["tweet_volume"], reverse=True)[:10]:
+        for trend_topic in sorted(trend_topics[0]["trends"],
+                                  key=lambda topic: topic["tweet_volume"] if topic["tweet_volume"] else 0,
+                                  reverse=True)[:10]:
             try:
                 tweet_count = int(trend_topic["tweet_volume"])
             except TypeError:
                 tweet_count = 0
 
             tt_length = len(trend_topic["name"])
-            tt_unicode_length = len(trend_topic["name"].encode("utf-8"))
+            tt_unicode_length = len(trend_topic["name"])
 
             width = 40
             if tt_length != tt_unicode_length:
                 width += tt_unicode_length - tt_length
 
-            print '{:{width}s} {:11d}'.format(trend_topic["name"].encode("utf-8"), tweet_count, width=width)
+            print('{:{width}s} {:11d}'.format(trend_topic["name"], tweet_count, width=width))
 
-        print
+        print()
 
     tweets = {}
 

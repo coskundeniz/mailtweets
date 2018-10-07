@@ -6,7 +6,7 @@ A command line program to mail queried tweets
 Information
 -----------
 
-This script queries tweets for given user(s), puts them in html format and send as mail to user. It was written with Python.
+This script queries tweets for given user(s), puts them in html format and send as mail to user. It was written with Python3.
 
 Requirements
 ------------

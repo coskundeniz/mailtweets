@@ -13,12 +13,10 @@ if sys.version_info.major < 3:
 
 try:
     import tweepy
-    import urllib3
 except ImportError:
     print("Please run 'pip install -r requirements.txt'")
     sys.exit(1)
 
-urllib3.disable_warnings()
 
 ACCESS_TOKEN = os.environ['TWITTER_ACCESS_TOKEN']
 ACCESS_TOKEN_SECRET = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
@@ -133,7 +131,7 @@ def get_usernames_from_file(filename):
         print("No username found in file! Exiting program...")
         sys.exit(1)
 
-    if(len(usernames) > 10):
+    if len(usernames) > 10:
         print("Max username count supported is 10")
         print("Getting tweets of first 10 user")
         return usernames[:10]

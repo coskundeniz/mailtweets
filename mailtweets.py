@@ -139,6 +139,34 @@ def get_usernames_from_file(filename):
     return usernames
 
 
+def list_trend_topics():
+    """List trend topics for Turkey"""
+
+    id_for_TR = 23424969
+    trend_topics = api.trends_place(id_for_TR)
+
+    print('{:40s} {}{:40s} {}'.format("Trend Topics", "Tweet Count\n", "------------", "-----------\n"))
+
+    for trend_topic in sorted(trend_topics[0]["trends"],
+                              key=lambda topic: topic["tweet_volume"] if topic["tweet_volume"] else 0,
+                              reverse=True)[:10]:
+        try:
+            tweet_count = int(trend_topic["tweet_volume"])
+        except TypeError:
+            tweet_count = 0
+
+        tt_length = len(trend_topic["name"])
+        tt_unicode_length = len(trend_topic["name"])
+
+        width = 40
+        if tt_length != tt_unicode_length:
+            width += tt_unicode_length - tt_length
+
+        print('{:{width}s} {:11d}'.format(trend_topic["name"], tweet_count, width=width))
+
+    print()
+
+
 def mail_tweets(tweets, mail_address):
     """Send tweets to given mail address
 
@@ -203,7 +231,7 @@ def construct_html_message(tweets):
     for user_tweet in sorted(tweets.items()):
 
         body_text += "<h2 style='color: %s; font-weight: normal; \
-                        font-size: 2.2em;'>Tweets from %s</h2>" %(color_values[index], user_tweet[0])
+                        font-size: 2.2em;'>Tweets from %s</h2>" % (color_values[index], user_tweet[0])
 
         if not len(user_tweet[1]):
             body_text += "\n<p style='color: #303030; font-size: 1.2em;'>No tweets for this user in last day.</p>"
@@ -221,7 +249,12 @@ def construct_html_message(tweets):
     return header_text + body_text
 
 
-if __name__ == '__main__':
+def get_arg_parser():
+    """Get argument parser
+
+    :rtype: ArgumentParser
+    :returns: ArgumentParser object
+    """
 
     arg_parser = ArgumentParser()
     arg_parser.add_argument("-u", "--username", help="Twitter username of a user")
@@ -230,35 +263,19 @@ if __name__ == '__main__':
     arg_parser.add_argument("-f", "--filename", default="usernames.txt",
                             help="Name of file that contains usernames")
     arg_parser.add_argument("-e", "--exclude", help="User(s) to exclude")
-    arg_parser.add_argument("-tt", "--trendtopics", action='store_true', help="List trend topics for Turkey")
+    arg_parser.add_argument("-tt", "--trendtopics", action='store_true',
+                            help="List trend topics for Turkey")
 
+    return arg_parser
+
+
+if __name__ == '__main__':
+
+    arg_parser = get_arg_parser()
     args = arg_parser.parse_args()
 
     if args.trendtopics:
-
-        id_for_TR = 23424969
-        trend_topics = api.trends_place(id_for_TR)
-
-        print('{:40s} {}{:40s} {}'.format("Trend Topics", "Tweet Count\n", "------------", "-----------\n"))
-
-        for trend_topic in sorted(trend_topics[0]["trends"],
-                                  key=lambda topic: topic["tweet_volume"] if topic["tweet_volume"] else 0,
-                                  reverse=True)[:10]:
-            try:
-                tweet_count = int(trend_topic["tweet_volume"])
-            except TypeError:
-                tweet_count = 0
-
-            tt_length = len(trend_topic["name"])
-            tt_unicode_length = len(trend_topic["name"])
-
-            width = 40
-            if tt_length != tt_unicode_length:
-                width += tt_unicode_length - tt_length
-
-            print('{:{width}s} {:11d}'.format(trend_topic["name"], tweet_count, width=width))
-
-        print()
+        list_trend_topics()
 
     tweets = {}
 
@@ -287,5 +304,3 @@ if __name__ == '__main__':
     message = construct_html_message(tweets)
 
     mail_tweets(message, "<receiver mail address>")
-
-

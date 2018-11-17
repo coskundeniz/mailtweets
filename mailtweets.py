@@ -30,8 +30,10 @@ api = tweepy.API(auth)
 
 
 def get_last_n_tweets_of_user(username, number_of_tweets=10):
-    """Return last n tweets of user as a dictionary. If latest tweet of user
-    is older than a day, no tweet will be returned for this user.
+    """Return last n tweets of user as a dictionary.
+
+    If latest tweet of user is older than a day,
+    no tweet will be returned for this user.
 
     :type username: string
     :param username: username
@@ -50,7 +52,9 @@ def get_last_n_tweets_of_user(username, number_of_tweets=10):
         print("Getting last 20 tweets")
         number_of_tweets = 20
 
-    user_tweets = api.user_timeline(username, count=number_of_tweets)
+    user_tweets = api.user_timeline(screen_name=username,
+                                    count=number_of_tweets,
+                                    tweet_mode="extended")
 
     last_tweet_time = user_tweets[0].created_at
     yesterday = datetime.now() - timedelta(hours=24)
@@ -59,10 +63,10 @@ def get_last_n_tweets_of_user(username, number_of_tweets=10):
         return {user: []}
 
     for tweet in user_tweets:
-        if "https" in tweet.text:
+        if "https" in tweet.full_text:
             tweets.append(make_links_clickable(tweet))
         else:
-            tweets.append(tweet.text)
+            tweets.append(tweet.full_text)
 
     return {user: tweets}
 
@@ -77,7 +81,7 @@ def make_links_clickable(tweet):
     """
 
     # split tweet text
-    tweet_splitted = tweet.text.split()
+    tweet_splitted = tweet.full_text.split()
 
     # replace link text with clickable html link element
     for text_part in tweet_splitted:
@@ -145,7 +149,8 @@ def list_trend_topics():
     id_for_TR = 23424969
     trend_topics = api.trends_place(id_for_TR)
 
-    print('{:40s} {}{:40s} {}'.format("Trend Topics", "Tweet Count\n", "------------", "-----------\n"))
+    print('{:40s} {}{:40s} {}'.format("Trend Topics", "Tweet Count\n",
+                                        "------------", "-----------\n"))
 
     for trend_topic in sorted(trend_topics[0]["trends"],
                               key=lambda topic: topic["tweet_volume"] if topic["tweet_volume"] else 0,

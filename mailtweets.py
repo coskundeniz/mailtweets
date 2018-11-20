@@ -232,22 +232,19 @@ def construct_html_message(tweets):
 
     body_text = "<body style='background-color: #E6E6E6;'>"
 
-    index = 0
+    color = iter(color_values)
     for user_tweet in sorted(tweets.items()):
 
         body_text += "<h2 style='color: %s; font-weight: normal; \
-                        font-size: 2.2em;'>Tweets from %s</h2>" % (color_values[index], user_tweet[0])
+                        font-size: 2.2em;'>Tweets from %s</h2>" % (next(color), user_tweet[0])
 
         if not len(user_tweet[1]):
             body_text += "\n<p style='color: #303030; font-size: 1.2em;'>No tweets for this user in last day.</p>"
-            index += 1
             continue
 
         for tweet in user_tweet[1]:
             body_text += "\n<p style='color: #303030; font-size: 1.2em;'>%s</p>" % tweet
             body_text += "<hr>"
-
-        index += 1
 
     body_text += "\n</body>\n</html>"
 

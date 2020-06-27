@@ -12,6 +12,10 @@ Requirements
 ------------
 
 * Twitter developer account
+
+Run one of the followings
+
+* `pipenv install`
 * `pip install -r requirements.txt`
 
 Usage
